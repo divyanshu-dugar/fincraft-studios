@@ -1,11 +1,8 @@
-import Navbar from "@/components/Navbar";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function Home() {
   return (
     <>
-      <Navbar/>
 
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Hero Section */}
