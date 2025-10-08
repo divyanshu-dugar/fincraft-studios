@@ -76,7 +76,7 @@ const AddExpense = () => {
     console.log(JSON.stringify(formData, null, 2));
     try {
       const token = getToken();
-      const res = await fetch('https://ledgerify-server.vercel.app/api/expenses', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expenses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
