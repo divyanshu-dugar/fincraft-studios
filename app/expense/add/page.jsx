@@ -80,7 +80,7 @@ const AddExpense = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `JWT ${token}`
         },
         body: JSON.stringify({
           ...formData,
