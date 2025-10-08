@@ -23,15 +23,15 @@ const ExpenseList = () => {
   const fetchExpenses = async () => {
     try {
       const token = getToken();
-      let url = '/api/expenses';
+      let url = `${process.env.NEXT_PUBLIC_API_URL}/expenses`;
       
       if (selectedCategory !== 'all') {
-        url = `/api/expenses/category/${selectedCategory}`;
+        url = `/expenses/category/${selectedCategory}`;
       }
 
       const res = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `jwt ${token}`
         }
       });
       
@@ -49,9 +49,9 @@ const ExpenseList = () => {
   const fetchStats = async () => {
     try {
       const token = getToken();
-      const res = await fetch('/api/expenses/stats', {
+      const res = await fetch('/expenses/stats', {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `jwt ${token}`
         }
       });
       
@@ -69,7 +69,7 @@ const ExpenseList = () => {
 
     try {
       const token = getToken();
-      const res = await fetch(`/api/expenses/${id}`, {
+      const res = await fetch(`/expenses/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
