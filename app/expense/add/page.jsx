@@ -82,10 +82,7 @@ const AddExpense = () => {
           'Content-Type': 'application/json',
           'Authorization': `JWT ${token}`
         },
-        body: JSON.stringify({
-          ...formData,
-          amount: parseFloat(formData.amount)
-        })
+        body: formData
       });
 
       if (res.ok) {
