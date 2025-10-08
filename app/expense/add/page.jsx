@@ -73,16 +73,16 @@ const AddExpense = () => {
     }
 
     setLoading(true);
-
+    console.log(JSON.stringify(formData, null, 2));
     try {
       const token = getToken();
-      const res = await fetch('/api/expenses', {
+      const res = await fetch('https://ledgerify-server.vercel.app/api/expenses', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `JWT ${token}`
+          'Authorization': `jwt ${token}`
         },
-        body: formData
+        body: JSON.stringify(formData)
       });
 
       if (res.ok) {
@@ -92,7 +92,7 @@ const AddExpense = () => {
         alert('Expense added successfully!');
         
         // Redirect to expense list
-        router.push('/expense-list');
+        router.push('/expense/list');
       } else {
         const errorData = await res.json();
         throw new Error(errorData.message || 'Failed to add expense');
