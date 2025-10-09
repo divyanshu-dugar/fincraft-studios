@@ -49,7 +49,7 @@ const ExpenseList = () => {
   const fetchStats = async () => {
     try {
       const token = getToken();
-      const res = await fetch('/expenses/stats', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expenses/stats`, {
         headers: {
           'Authorization': `jwt ${token}`
         }
@@ -69,10 +69,10 @@ const ExpenseList = () => {
 
     try {
       const token = getToken();
-      const res = await fetch(`/expenses/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expenses/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `jwt ${token}`
         }
       });
 
@@ -329,7 +329,7 @@ const ExpenseList = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button
-                          onClick={() => router.push(`/edit-expense/${expense._id}`)}
+                          onClick={() => router.push(`/expense/edit/${expense._id}`)}
                           className="text-blue-600 hover:text-blue-900 mr-4"
                         >
                           Edit
