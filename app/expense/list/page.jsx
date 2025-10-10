@@ -133,6 +133,7 @@ const ExpenseList = () => {
         {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            {/* Total Expenses */}
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-blue-100 rounded-lg">
@@ -147,6 +148,7 @@ const ExpenseList = () => {
               </div>
             </div>
 
+            {/* Total Categories */}
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-green-100 rounded-lg">
@@ -161,6 +163,7 @@ const ExpenseList = () => {
               </div>
             </div>
 
+            {/* Transactions */}
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-purple-100 rounded-lg">
@@ -170,11 +173,12 @@ const ExpenseList = () => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Transactions</p>
-                  <p className="text-2xl font-bold text-gray-900">{expenses.length}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalTransactions}</p>
                 </div>
               </div>
             </div>
 
+            {/* Avg Expense */}
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-yellow-100 rounded-lg">
@@ -184,14 +188,13 @@ const ExpenseList = () => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Avg. Expense</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {formatCurrency(stats.totalExpenses / (expenses.length || 1))}
-                  </p>
+                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.avgExpense)}</p>
                 </div>
               </div>
             </div>
           </div>
         )}
+
 
         {/* Category Distribution Chart */}
         {stats && stats.categoryStats.length > 0 && (
