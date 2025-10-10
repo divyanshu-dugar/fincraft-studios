@@ -30,7 +30,9 @@ const ExpenseList = () => {
       }
 
       const res = await fetch(url, {
+        method: 'GET',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `jwt ${token}`
         }
       });
