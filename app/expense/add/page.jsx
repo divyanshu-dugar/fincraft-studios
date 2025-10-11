@@ -86,10 +86,9 @@ const AddExpense = () => {
       });
 
       if (res.ok) {
-        const data = await res.json();
-        
+        const data = await res.json();        
         // Show success message
-        alert('Expense added successfully!');
+        // alert('Expense added successfully!');
         
         // Redirect to expense list
         router.push('/expense/list');
