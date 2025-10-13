@@ -1,12 +1,13 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getToken } from '@/lib/authenticate';
 
 const AddExpense = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     category: '',
@@ -15,20 +16,21 @@ const AddExpense = () => {
   });
   const [errors, setErrors] = useState({});
 
-  const categories = [
-    'Food & Dining',
-    'Transportation',
-    'Shopping',
-    'Entertainment',
-    'Bills & Utilities',
-    'Healthcare',
-    'Education',
-    'Travel',
-    'Personal Care',
-    'Gifts & Donations',
-    'Business',
-    'Other'
-  ];
+  // Fetch categories from backend
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expense-categories`);
+        if (!res.ok) throw new Error("Failed to load categories");
+        const data = await res.json();
+        setCategories(data);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -164,6 +166,7 @@ const AddExpense = () => {
               <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
                 Category <span className="text-red-500">*</span>
               </label>
+              
               <select
                 id="category"
                 name="category"
@@ -175,11 +178,12 @@ const AddExpense = () => {
               >
                 <option value="">Select a category</option>
                 {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category}
+                  <option key={category._id} value={category.name}>
+                    {category.name}
                   </option>
                 ))}
               </select>
+
               {errors.category && (
                 <p className="mt-1 text-sm text-red-600">{errors.category}</p>
               )}

@@ -16,8 +16,10 @@ const ExpenseList = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [dateRange, setDateRange] = useState({
-    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0]
+    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+      .toISOString()
+      .split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
   });
 
   const router = useRouter();
@@ -31,10 +33,15 @@ const ExpenseList = () => {
     try {
       const token = getToken();
       let url = `${process.env.NEXT_PUBLIC_API_URL}/expenses`;
-      if (selectedCategory !== 'all') url = `${process.env.NEXT_PUBLIC_API_URL}/expenses/category/${selectedCategory}`;
+
+      if (selectedCategory !== 'all')
+        url = `${process.env.NEXT_PUBLIC_API_URL}/expenses/category/${selectedCategory}`;
 
       const res = await fetch(url, {
-        headers: { 'Authorization': `jwt ${token}`, 'Content-Type': 'application/json' },
+        headers: {
+          Authorization: `jwt ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       if (res.ok) {
@@ -52,7 +59,7 @@ const ExpenseList = () => {
     try {
       const token = getToken();
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expenses/stats`, {
-        headers: { 'Authorization': `jwt ${token}` },
+        headers: { Authorization: `jwt ${token}` },
       });
 
       if (res.ok) {
@@ -66,12 +73,14 @@ const ExpenseList = () => {
 
   const deleteExpense = async (id) => {
     if (!confirm('Are you sure you want to delete this expense?')) return;
+
     try {
       const token = getToken();
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expenses/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `jwt ${token}` },
+        headers: { Authorization: `jwt ${token}` },
       });
+
       if (res.ok) {
         setExpenses(expenses.filter((e) => e._id !== id));
         fetchStats();
@@ -82,12 +91,20 @@ const ExpenseList = () => {
   };
 
   const formatCurrency = (amount) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+    new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(amount);
 
   const formatDate = (dateString) =>
-    new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
 
   const getCategoryColor = (category) => {
+    const name = category?.name || 'Other';
     const colors = {
       Food: 'bg-red-100 text-red-800',
       Transportation: 'bg-blue-100 text-blue-800',
@@ -97,7 +114,7 @@ const ExpenseList = () => {
       Healthcare: 'bg-pink-100 text-pink-800',
       Other: 'bg-gray-100 text-gray-800',
     };
-    return colors[category] || 'bg-gray-100 text-gray-800';
+    return colors[name] || 'bg-gray-100 text-gray-800';
   };
 
   if (loading) return <LoadingSpinner />;
@@ -113,7 +130,11 @@ const ExpenseList = () => {
         {stats && (
           <>
             <ExpenseStats stats={stats} formatCurrency={formatCurrency} />
-            <ExpenseDistribution stats={stats} formatCurrency={formatCurrency} getCategoryColor={getCategoryColor} />
+            <ExpenseDistribution
+              stats={stats}
+              formatCurrency={formatCurrency}
+              getCategoryColor={getCategoryColor}
+            />
           </>
         )}
 
@@ -135,7 +156,9 @@ const ExpenseList = () => {
           getCategoryColor={getCategoryColor}
         />
 
-        {expenses.length > 0 && <ExpenseSummary expenses={expenses} formatCurrency={formatCurrency} />}
+        {expenses.length > 0 && (
+          <ExpenseSummary expenses={expenses} formatCurrency={formatCurrency} />
+        )}
       </div>
     </div>
   );
