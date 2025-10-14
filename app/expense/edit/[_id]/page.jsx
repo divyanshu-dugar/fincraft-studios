@@ -11,6 +11,7 @@ const EditExpense = () => {
     amount: '',
     note: '',
   });
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -18,33 +19,39 @@ const EditExpense = () => {
   const router = useRouter();
   const params = useParams();
 
-  const categories = [
-    'Food',
-    'Transportation',
-    'Entertainment',
-    'Shopping',
-    'Bills',
-    'Healthcare',
-    'Other',
-  ];
-
   useEffect(() => {
+    fetchCategories();
     fetchExpense();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const token = getToken();
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expense-categories`, {
+        headers: { Authorization: `jwt ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      } else {
+        setError('Failed to load categories.');
+      }
+    } catch (err) {
+      setError('Error fetching categories.');
+    }
+  };
 
   const fetchExpense = async () => {
     try {
       const token = getToken();
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expenses/${params._id}`, {
-        headers: {
-          'Authorization': `jwt ${token}`,
-        },
+        headers: { Authorization: `jwt ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
         setExpense({
           date: data.date.split('T')[0],
-          category: data.category,
+          category: data.category?._id || '',
           amount: data.amount,
           note: data.note || '',
         });
@@ -74,9 +81,12 @@ const EditExpense = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `jwt ${token}`,
+          Authorization: `jwt ${token}`,
         },
-        body: JSON.stringify(expense),
+        body: JSON.stringify({
+          ...expense,
+          category: expense.category, // sending category ID
+        }),
       });
 
       if (res.ok) {
@@ -120,10 +130,9 @@ const EditExpense = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Date
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
             <input
               type="date"
               name="date"
@@ -134,10 +143,9 @@ const EditExpense = () => {
             />
           </div>
 
+          {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Category
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
             <select
               name="category"
               value={expense.category}
@@ -147,15 +155,16 @@ const EditExpense = () => {
             >
               <option value="">Select Category</option>
               {categories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
               ))}
             </select>
           </div>
 
+          {/* Amount */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Amount
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
             <input
               type="number"
               name="amount"
@@ -168,10 +177,9 @@ const EditExpense = () => {
             />
           </div>
 
+          {/* Note */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Note
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Note</label>
             <textarea
               name="note"
               value={expense.note}
@@ -182,6 +190,7 @@ const EditExpense = () => {
             />
           </div>
 
+          {/* Buttons */}
           <div className="flex justify-between items-center">
             <button
               type="button"
