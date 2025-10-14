@@ -13,6 +13,7 @@ import LoadingSpinner from './LoadingSpinner';
 const ExpenseList = () => {
   const [expenses, setExpenses] = useState([]);
   const [stats, setStats] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [dateRange, setDateRange] = useState({
@@ -24,11 +25,26 @@ const ExpenseList = () => {
 
   const router = useRouter();
 
+  // 🟢 Load all data when filters change
   useEffect(() => {
+    fetchCategories();
     fetchExpenses();
     fetchStats();
   }, [selectedCategory, dateRange]);
 
+  // 🟣 Fetch categories
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expense-categories`);
+      if (!res.ok) throw new Error('Failed to load categories');
+      const data = await res.json();
+      setCategories(data);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    }
+  };
+
+  // 🟣 Fetch expenses
   const fetchExpenses = async () => {
     try {
       const token = getToken();
@@ -55,6 +71,7 @@ const ExpenseList = () => {
     }
   };
 
+  // 🟣 Fetch aggregated stats
   const fetchStats = async () => {
     try {
       const token = getToken();
@@ -71,9 +88,9 @@ const ExpenseList = () => {
     }
   };
 
+  // 🟣 Delete expense
   const deleteExpense = async (id) => {
     if (!confirm('Are you sure you want to delete this expense?')) return;
-
     try {
       const token = getToken();
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expenses/${id}`, {
@@ -90,6 +107,7 @@ const ExpenseList = () => {
     }
   };
 
+  // 🟣 Utility formatters
   const formatCurrency = (amount) =>
     new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -103,43 +121,32 @@ const ExpenseList = () => {
       day: 'numeric',
     });
 
-  const getCategoryColor = (category) => {
-    const name = category?.name || 'Other';
-    const colors = {
-      Food: 'bg-red-100 text-red-800',
-      Transportation: 'bg-blue-100 text-blue-800',
-      Entertainment: 'bg-purple-100 text-purple-800',
-      Shopping: 'bg-yellow-100 text-yellow-800',
-      Bills: 'bg-green-100 text-green-800',
-      Healthcare: 'bg-pink-100 text-pink-800',
-      Other: 'bg-gray-100 text-gray-800',
-    };
-    return colors[name] || 'bg-gray-100 text-gray-800';
-  };
-
   if (loading) return <LoadingSpinner />;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Expense Tracker</h1>
           <p className="text-gray-600">Manage and analyze your expenses</p>
         </header>
 
+        {/* Stats and Distribution */}
         {stats && (
           <>
             <ExpenseStats stats={stats} formatCurrency={formatCurrency} />
             <ExpenseDistribution
               stats={stats}
               formatCurrency={formatCurrency}
-              getCategoryColor={getCategoryColor}
             />
           </>
         )}
 
+        {/* Filters */}
         <ExpenseFilters
           stats={stats}
+          categories={categories}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
           dateRange={dateRange}
@@ -147,15 +154,16 @@ const ExpenseList = () => {
           router={router}
         />
 
+        {/* Table */}
         <ExpenseTable
           expenses={expenses}
           router={router}
           deleteExpense={deleteExpense}
           formatCurrency={formatCurrency}
           formatDate={formatDate}
-          getCategoryColor={getCategoryColor}
         />
 
+        {/* Summary */}
         {expenses.length > 0 && (
           <ExpenseSummary expenses={expenses} formatCurrency={formatCurrency} />
         )}
