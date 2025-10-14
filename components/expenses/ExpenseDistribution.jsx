@@ -9,26 +9,21 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-export default function ExpenseDistribution({ stats, formatCurrency, getCategoryColor }) {
-  if (!stats.categoryStats?.length) return null;
+export default function ExpenseDistribution({
+  stats,
+  formatCurrency,
+}) {
+  if (!stats?.categoryStats?.length) return null;
 
-  // Prepare chart data
-  const chartData = stats.categoryStats.map((category) => ({
-    name: category._id,
-    value: category.totalAmount,
+  // 🟢 Prepare chart data
+  const chartData = stats.categoryStats.map((entry) => ({
+    name: entry.category?.name || 'Uncategorized',
+    value: entry.totalAmount,
+    colorClass: entry.category.color,
   }));
 
-  // Generate color array based on your getCategoryColor
-  const COLORS = stats.categoryStats.map((c) => {
-    const cls = getCategoryColor(c._id);
-    // Extract approximate color for Recharts from Tailwind class
-    if (cls.includes('green')) return '#22c55e';
-    if (cls.includes('blue')) return '#3b82f6';
-    if (cls.includes('pink')) return '#ec4899';
-    if (cls.includes('red')) return '#ef4444';
-    if (cls.includes('yellow')) return '#eab308';
-    return '#9ca3af'; // gray fallback
-  });
+  // 🟢 Use color from DB directly (fallback to gray)
+  const COLORS = chartData.map(({ colorClass }) => colorClass || '#9ca3af');
 
   return (
     <div className="bg-white rounded-lg shadow p-6 mb-8">
@@ -36,7 +31,7 @@ export default function ExpenseDistribution({ stats, formatCurrency, getCategory
         Expense Distribution by Category
       </h2>
 
-      {/* Chart Section */}
+      {/* 🧩 Chart Section */}
       <div className="w-full h-80 mb-8">
         <ResponsiveContainer>
           <PieChart>
@@ -44,8 +39,8 @@ export default function ExpenseDistribution({ stats, formatCurrency, getCategory
               data={chartData}
               cx="50%"
               cy="50%"
-              labelLine={false}
               outerRadius={110}
+              labelLine={false}
               fill="#8884d8"
               dataKey="value"
               label={({ name, percent }) =>
@@ -59,6 +54,7 @@ export default function ExpenseDistribution({ stats, formatCurrency, getCategory
                 />
               ))}
             </Pie>
+
             <Tooltip
               formatter={(value) => formatCurrency(value)}
               contentStyle={{ borderRadius: '8px' }}
@@ -68,29 +64,29 @@ export default function ExpenseDistribution({ stats, formatCurrency, getCategory
         </ResponsiveContainer>
       </div>
 
-      {/* Text Breakdown Section */}
+      {/* 🧾 Text Breakdown Section */}
       <div className="space-y-3">
-        {stats.categoryStats.map((category) => {
+        {stats.categoryStats.map((entry, index) => {
           const percentage =
-            (category.totalAmount / stats.totalExpenses) * 100;
+            (entry.totalAmount / stats.totalExpenses) * 100;
+          const colorClass = entry.category.color;
+          const name = entry.category?.name || 'Uncategorized';
+
           return (
             <div
-              key={category._id}
+              key={entry.category?._id || index}
               className="flex items-center justify-between"
             >
               <div className="flex items-center space-x-3">
-                <div
-                  className={`w-3 h-3 rounded-full ${getCategoryColor(
-                    category._id
-                  )}`}
-                ></div>
-                <span className="font-medium text-gray-700">
-                  {category._id}
-                </span>
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: colorClass || '#9ca3af' }}
+              ></div>
+                <span className="font-medium text-gray-700">{name}</span>
               </div>
               <div className="flex items-center space-x-4">
                 <span className="text-sm font-medium text-gray-900 w-24 text-right">
-                  {formatCurrency(category.totalAmount)}
+                  {formatCurrency(entry.totalAmount)}
                 </span>
                 <span className="text-sm text-gray-500 w-12 text-right">
                   ({percentage.toFixed(1)}%)
