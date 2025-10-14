@@ -62,7 +62,7 @@ export default function Navbar() {
           items: [
             { name: 'Expense List', href: '/expense/list' },
             { name: 'Add Expense', href: '/expense/add' },
-            { name: 'Add Category', href: '/add-category' },
+            { name: 'Add Category', href: '/expense/category' },
           ],
         },
       ],
