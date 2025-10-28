@@ -16,11 +16,13 @@ const ExpenseList = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const today = new Date();
+  const firstDayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
+  const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+
   const [dateRange, setDateRange] = useState({
-    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-      .toISOString()
-      .split('T')[0],
-    endDate: new Date().toISOString().split('T')[0],
+    startDate: firstDayUTC.toISOString().split('T')[0],
+    endDate: todayUTC.toISOString().split('T')[0],
   });
 
   const router = useRouter();
@@ -50,8 +52,26 @@ const ExpenseList = () => {
       const token = getToken();
       let url = `${process.env.NEXT_PUBLIC_API_URL}/expenses`;
 
-      if (selectedCategory !== 'all')
+      // 🔹 If a category is selected
+      if (selectedCategory !== 'all') {
         url = `${process.env.NEXT_PUBLIC_API_URL}/expenses/category/${selectedCategory}`;
+      }
+
+      // 🔹 If a date range is selected
+      if (dateRange.startDate && dateRange.endDate) {
+        // Add date range query params
+        const params = new URLSearchParams({
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate,
+        }).toString();
+
+        // If category is 'all', use date-range route
+        if (selectedCategory === 'all') {
+          url = `${process.env.NEXT_PUBLIC_API_URL}/expenses/date-range?${params}`;
+        } else {
+          url = `${process.env.NEXT_PUBLIC_API_URL}/expenses/category/${selectedCategory}/date-range?${params}`;
+        }
+      }
 
       const res = await fetch(url, {
         headers: {
@@ -70,6 +90,7 @@ const ExpenseList = () => {
       setLoading(false);
     }
   };
+
 
   // 🟣 Fetch aggregated stats
   const fetchStats = async () => {
@@ -114,12 +135,15 @@ const ExpenseList = () => {
       currency: 'USD',
     }).format(amount);
 
-  const formatDate = (dateString) =>
-    new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
+      timeZone: 'UTC' // 👈 Force UTC so it doesn’t shift with user timezone
     });
+  };
 
   if (loading) return <LoadingSpinner />;
 
@@ -145,7 +169,6 @@ const ExpenseList = () => {
 
         {/* Filters */}
         <ExpenseFilters
-          stats={stats}
           categories={categories}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}

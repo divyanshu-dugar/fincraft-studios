@@ -18,7 +18,7 @@ export default function Home() {
             </p>
           </div>
           <Link 
-            href="/expense-list"
+            href="/expense/list"
             className="inline-flex items-center px-8 py-4 text-lg font-semibold text-blue-600 bg-white rounded-xl hover:bg-gray-50 hover:scale-105 transform transition-all duration-200 shadow-lg hover:shadow-xl"
           >
             Get Started

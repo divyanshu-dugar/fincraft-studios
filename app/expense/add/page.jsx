@@ -9,7 +9,7 @@ const AddExpense = () => {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toLocaleDateString('en-CA'),
     category: '',
     amount: '',
     note: ''
@@ -91,7 +91,7 @@ const AddExpense = () => {
         const data = await res.json();        
         // Show success message
         // alert('Expense added successfully!');
-        
+          
         // Redirect to expense list
         router.push('/expense/list');
       } else {

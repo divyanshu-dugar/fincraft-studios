@@ -1,7 +1,6 @@
 'use client';
 
 export default function ExpenseFilters({
-  stats,
   categories,
   selectedCategory,
   setSelectedCategory,
