@@ -6,7 +6,6 @@
 📦 app
  ┣ 📂 expense/list/
  ┃ ┣ 📜 page.jsx                    # Main Expenses Page
- ┃ ...
  📂 components
  ┣ 📂 expenses/
  ┃ ┃ ┣ 📜 ExpenseDistribution.jsx   # Visualizes category-wise distribution using PieChart
@@ -14,7 +13,7 @@
  ┃ ┃ ┣ 📜 ExpenseList.jsx           # Core logic, API calls, state handling
  ┃ ┃ ┣ 📜 ExpenseSummary.jsx        # Bottom total summary
  ┃ ┃ ┗ 📜 ExpenseStats.jsx          # Summary cards
- ┗ ...
+ ┗ 
 ```
 
 </details>
