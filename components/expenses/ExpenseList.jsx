@@ -25,6 +25,10 @@ const ExpenseList = () => {
     endDate: todayUTC.toISOString().split('T')[0],
   });
 
+  // Pagination 
+  const [currentMonth, setCurrentMonth] = useState(todayUTC.getUTCMonth());
+  const [currentYear, setCurrentYear] = useState(todayUTC.getUTCFullYear());
+
   const router = useRouter();
 
   // 🟢 Load all data when filters change
@@ -91,7 +95,6 @@ const ExpenseList = () => {
     }
   };
 
-
   // 🟣 Fetch aggregated stats
   const fetchStats = async () => {
     try {
@@ -145,6 +148,36 @@ const ExpenseList = () => {
     });
   };
 
+  // Pagination
+  const changeMonth = (direction) => {
+    let newMonth = currentMonth + direction;
+    let newYear = currentYear;
+
+    // Handle year rollover
+    if (newMonth < 0) {
+      newMonth = 11;
+      newYear -= 1;
+    } else if (newMonth > 11) {
+      newMonth = 0;
+      newYear += 1;
+    }
+
+    // Update current month/year
+    setCurrentMonth(newMonth);
+    setCurrentYear(newYear);
+
+    // Calculate first and last day of the new month in UTC
+    const firstDayUTC = new Date(Date.UTC(newYear, newMonth, 1));
+    const lastDayUTC = new Date(Date.UTC(newYear, newMonth + 1, 0));
+
+    // Update date range state
+    setDateRange({
+      startDate: firstDayUTC.toISOString().split('T')[0],
+      endDate: lastDayUTC.toISOString().split('T')[0],
+    });
+  };
+
+
   if (loading) return <LoadingSpinner />;
 
   return (
@@ -186,10 +219,37 @@ const ExpenseList = () => {
           formatDate={formatDate}
         />
 
+        {/* Pagination Controls */}
+        <div className="flex justify-between items-center mt-6">
+          <button
+            onClick={() => changeMonth(-1)}
+            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+          >
+            ← Previous Month
+          </button>
+
+          <p className="text-gray-700 font-medium">
+            {new Date(Date.UTC(currentYear, currentMonth))
+              .toLocaleString('default', { month: 'long', year: 'numeric' })}
+          </p>
+
+          <button
+            onClick={() => changeMonth(1)}
+            disabled={
+              currentYear === todayUTC.getUTCFullYear() &&
+              currentMonth === todayUTC.getUTCMonth()
+            }
+            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
+          >
+            Next Month →
+          </button>
+        </div>
+
         {/* Summary */}
         {expenses.length > 0 && (
           <ExpenseSummary expenses={expenses} formatCurrency={formatCurrency} />
         )}
+
       </div>
     </div>
   );
