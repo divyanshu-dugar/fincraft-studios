@@ -177,20 +177,48 @@ const ExpenseList = () => {
     });
   };
 
-
   if (loading) return <LoadingSpinner />;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Expense Tracker</h1>
-          <p className="text-gray-600">Manage and analyze your expenses</p>
+
+        {/* 🌟 Hero Section */}
+        <header className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl shadow-lg p-8 mb-10">
+          <div className="relative z-10">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg mb-3">
+              Expense Tracker
+            </h1>
+            <p className="text-lg md:text-xl text-blue-100 max-w-2xl">
+              Gain control over your finances - track, analyze, and grow smarter with every expense.
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-4">
+              <button
+                onClick={() => router.push("/expense/add")}
+                className="px-6 py-3 bg-white text-blue-700 font-semibold rounded-xl shadow-md hover:bg-blue-50 transition-all"
+              >
+                + Add Expense
+              </button>
+              <button
+                onClick={() => router.push("/reports")}
+                className="px-6 py-3 border border-white text-white rounded-xl hover:bg-white/10 transition-all"
+              >
+                View Reports
+              </button>
+            </div>
+          </div>
+
+          {/* Decorative gradients / shapes */}
+          <div className="absolute inset-0">
+            <div className="absolute top-0 left-0 w-72 h-72 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 right-0 w-72 h-72 bg-purple-400/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+          </div>
         </header>
 
+
         {/* Stats and Distribution */}
-        {stats && (
+        {/* {stats && (
           <>
             <ExpenseStats stats={stats} formatCurrency={formatCurrency} />
             <ExpenseDistribution
@@ -198,7 +226,7 @@ const ExpenseList = () => {
               formatCurrency={formatCurrency}
             />
           </>
-        )}
+        )} */}
 
         {/* Filters */}
         <ExpenseFilters
