@@ -41,7 +41,7 @@ export default function ExpenseTable({
       <div className="overflow-x-auto">
         {sortedDates.map((date) => (
           <div key={date} className="border-b border-gray-200">
-            {/* 📅 Sticky Date Subheader */}
+            {/* Sticky Date Subheader */}
             <div className="bg-gray-100 px-6 py-3 sticky top-0 z-10">
               <h2 className="text-lg font-semibold text-gray-800">{date}</h2>
             </div>

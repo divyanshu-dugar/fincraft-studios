@@ -49,14 +49,14 @@ export default function Navbar() {
     {
       name: 'Ledgerify',
       items: [
-        {
-          title: 'Income Tracker',
-          items: [
-            { name: 'Income List', href: '/income-list' },
-            { name: 'Add Income', href: '/add-income' },
-            { name: 'Add Category', href: '/add-income-category' },
-          ],
-        },
+        // {
+        //   title: 'Income Tracker',
+        //   items: [
+        //     { name: 'Income List', href: '/income-list' },
+        //     { name: 'Add Income', href: '/add-income' },
+        //     { name: 'Add Category', href: '/add-income-category' },
+        //   ],
+        // },
         {
           title: 'Expenses Tracker',
           items: [
@@ -67,34 +67,34 @@ export default function Navbar() {
         },
       ],
     },
-    {
-      name: 'Budgetify',
-      items: [
-        { name: 'Coming Soon!🔒', href: '/' },
-        { name: 'Coming Soon!', href: '/' },
-      ],
-    },
-    {
-      name: 'Investify',
-      items: [
-        { name: 'Coming Soon!🔒', href: '/' },
-        { name: 'Coming Soon', href: '/' },
-      ],
-    },
-    {
-      name: 'Savify',
-      items: [
-        { name: 'Savings Goal List', href: '/savings-goal-list' },
-        { name: 'Add Savings Goal', href: '/add-savings-goal' },
-      ],
-    },
-    {
-      name: 'Other Tools',
-      items: [
-        { name: 'Tax Calculator', href: '/tax-calculator' },
-        { name: 'Currency Converter', href: '/currency-converter' },
-      ],
-    },
+    // {
+    //   name: 'Budgetify',
+    //   items: [
+    //     { name: 'Coming Soon!🔒', href: '/' },
+    //     { name: 'Coming Soon!', href: '/' },
+    //   ],
+    // },
+    // {
+    //   name: 'Investify',
+    //   items: [
+    //     { name: 'Coming Soon!🔒', href: '/' },
+    //     { name: 'Coming Soon', href: '/' },
+    //   ],
+    // },
+    // {
+    //   name: 'Savify',
+    //   items: [
+    //     { name: 'Savings Goal List', href: '/savings-goal-list' },
+    //     { name: 'Add Savings Goal', href: '/add-savings-goal' },
+    //   ],
+    // },
+    // {
+    //   name: 'Other Tools',
+    //   items: [
+    //     { name: 'Tax Calculator', href: '/tax-calculator' },
+    //     { name: 'Currency Converter', href: '/currency-converter' },
+    //   ],
+    // },
   ];
 
   const publicMenuItems = [
@@ -151,7 +151,7 @@ export default function Navbar() {
 
                 {/* Dropdown Menu */}
                 <div
-                  className={`absolute left-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 transition-all duration-200 overflow-hidden ${
+                  className={`absolute left-0 top-full mt-2 w-40 bg-white rounded-lg shadow-xl border border-gray-200 transition-all duration-200 overflow-hidden ${
                     activeDropdown === menu.name
                       ? 'max-h-[500px] opacity-100 visible'
                       : 'max-h-0 opacity-0 invisible'
