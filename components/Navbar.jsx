@@ -115,7 +115,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 text-white hover:text-gray-200 transition-colors">
-            <span className="text-2xl">💸</span>
+            <span className="text-2xl"></span>
             <span className="text-xl font-bold bg-gradient-to-r from-yellow-300 to-green-300 bg-clip-text text-transparent">
               Fin-Craft Studios
             </span>
