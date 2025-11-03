@@ -230,7 +230,11 @@ const ExpenseList = () => {
 
           <p className="text-gray-700 font-medium">
             {new Date(Date.UTC(currentYear, currentMonth))
-              .toLocaleString('default', { month: 'long', year: 'numeric' })}
+              .toLocaleString('default', {
+                month: 'long',
+                year: 'numeric',
+                timeZone: 'UTC',
+              })}
           </p>
 
           <button
