@@ -251,7 +251,7 @@ const ExpenseList = () => {
         <div className="flex justify-between items-center mt-6">
           <button
             onClick={() => changeMonth(-1)}
-            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 cursor-pointer"
           >
             ← Previous Month
           </button>
@@ -271,7 +271,7 @@ const ExpenseList = () => {
               currentYear === todayUTC.getUTCFullYear() &&
               currentMonth === todayUTC.getUTCMonth()
             }
-            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
+            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50 cursor-pointer"
           >
             Next Month →
           </button>
