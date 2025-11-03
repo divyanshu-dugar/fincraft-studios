@@ -18,3 +18,20 @@
 ```
 
 </details>
+
+<details>
+<summary>👉🏻 Expense API Routes</summary>
+
+## Authentication - Passport JWT
+
+### expenses
+
+| Method | Endpoint | Description | Headers | Body | Response |
+|--------|----------|-------------|---------|------|----------|
+| `GET` | `/expenses` | Get user expenses | `Authorization` | - | `[expenses]` |
+| `POST` | `/expenses` | Create expense | `Authorization` | `{amount, category, type, date}` | `{expense}` |
+| `PUT` | `/expenses/:id` | Update expense | `Authorization` | `{amount, category}` | `{expense}` |
+| `DELETE` | `/expenses/:id` | Delete expense | `Authorization` | - | `{message}` |
+
+
+</details>
