@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getToken } from '@/lib/authenticate';
-import ExpenseStats from './ExpenseStats';
-import ExpenseDistribution from './ExpenseDistribution';
 import ExpenseFilters from './ExpenseFilters';
 import ExpenseTable from './ExpenseTable';
 import ExpenseSummary from './ExpenseSummary';
@@ -28,6 +26,8 @@ const ExpenseList = () => {
   // Pagination 
   const [currentMonth, setCurrentMonth] = useState(todayUTC.getUTCMonth());
   const [currentYear, setCurrentYear] = useState(todayUTC.getUTCFullYear());
+  // Analytics
+  const [insight, setInsight] = useState(null);
 
   const router = useRouter();
 
@@ -56,20 +56,16 @@ const ExpenseList = () => {
       const token = getToken();
       let url = `${process.env.NEXT_PUBLIC_API_URL}/expenses`;
 
-      // 🔹 If a category is selected
+      // Handle category + date filters
       if (selectedCategory !== 'all') {
         url = `${process.env.NEXT_PUBLIC_API_URL}/expenses/category/${selectedCategory}`;
       }
-
-      // 🔹 If a date range is selected
       if (dateRange.startDate && dateRange.endDate) {
-        // Add date range query params
         const params = new URLSearchParams({
           startDate: dateRange.startDate,
           endDate: dateRange.endDate,
         }).toString();
 
-        // If category is 'all', use date-range route
         if (selectedCategory === 'all') {
           url = `${process.env.NEXT_PUBLIC_API_URL}/expenses/date-range?${params}`;
         } else {
@@ -84,12 +80,38 @@ const ExpenseList = () => {
         },
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        setExpenses(data);
+      if (!res.ok) throw new Error('Failed to fetch expenses');
+
+      const data = await res.json();
+      setExpenses(data);
+
+      // 🧠 Send data to AI service
+      if (data && data.length > 0) {
+        try {
+          const aiRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analyze`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ expenses: data }),
+          });
+
+          if (aiRes.ok) {
+            const aiData = await aiRes.json();
+            setInsight(aiData.insight);
+          } else {
+            // console.error("AI service error:", aiRes.statusText);
+            setInsight(null); // If AI service fails, clear insight?
+          }
+        } catch (err) {
+          console.error("Error connecting to AI service:", err);
+          setInsight(null);
+        }
+      } else {
+        // If there are no expenses, clear the insight
+        setInsight(null);
       }
     } catch (error) {
       console.error('Error fetching expenses:', error);
+      setInsight(null); // Also in case of error, clear insight?
     } finally {
       setLoading(false);
     }
@@ -216,18 +238,6 @@ const ExpenseList = () => {
           </div>
         </header>
 
-
-        {/* Stats and Distribution */}
-        {/* {stats && (
-          <>
-            <ExpenseStats stats={stats} formatCurrency={formatCurrency} />
-            <ExpenseDistribution
-              stats={stats}
-              formatCurrency={formatCurrency}
-            />
-          </>
-        )} */}
-
         {/* Filters */}
         <ExpenseFilters
           categories={categories}
@@ -281,7 +291,6 @@ const ExpenseList = () => {
         {expenses.length > 0 && (
           <ExpenseSummary expenses={expenses} formatCurrency={formatCurrency} />
         )}
-
       </div>
     </div>
   );
