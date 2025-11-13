@@ -135,7 +135,7 @@ export default function Navbar() {
               <div key={menu.name} className="relative">
                 <button
                   onClick={() => toggleDropdown(menu.name)}
-                  className="px-4 py-2 text-white hover:bg-white/20 rounded-lg flex items-center space-x-1 transition-all"
+                  className="px-4 py-2 text-white hover:bg-white/20 rounded-lg flex items-center space-x-1 transition-all cursor-pointer"
                 >
                   <span>{menu.name}</span>
                   <svg
