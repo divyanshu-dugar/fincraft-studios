@@ -81,13 +81,12 @@ export default function Navbar() {
     //     { name: 'Coming Soon', href: '/' },
     //   ],
     // },
-    // {
-    //   name: 'Savify',
-    //   items: [
-    //     { name: 'Savings Goal List', href: '/savings-goal-list' },
-    //     { name: 'Add Savings Goal', href: '/add-savings-goal' },
-    //   ],
-    // },
+    {
+      name: 'Goalify',
+      items: [
+        { name: 'Savings Goal List', href: '/goal/list' },
+      ],
+    },
     // {
     //   name: 'Other Tools',
     //   items: [
@@ -117,7 +116,7 @@ export default function Navbar() {
           <Link href="/" className="flex items-center space-x-2 text-white hover:text-gray-200 transition-colors">
             <span className="text-2xl"></span>
             <span className="text-xl font-bold bg-gradient-to-r from-yellow-300 to-green-300 bg-clip-text text-transparent">
-              Fin-Craft Studios
+              Fincraft AI
             </span>
           </Link>
 
