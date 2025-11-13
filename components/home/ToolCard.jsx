@@ -27,7 +27,7 @@ export default function ToolCard({ tool }) {
         {/* Explore Tool Link */}
         {!tool.comingSoon && (
           <Link
-            href="/expense/list"
+            href={tool.href}
             className="mt-6 inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transform transition-all duration-200 shadow-md hover:shadow-lg text-sm font-medium"
           >
             Explore Tool
