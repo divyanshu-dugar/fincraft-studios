@@ -1,29 +1,33 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { getToken } from '@/lib/authenticate';
-import ExpenseFilters from './ExpenseFilters';
-import ExpenseTable from './ExpenseTable';
-import ExpenseSummary from './ExpenseSummary';
-import LoadingSpinner from './LoadingSpinner';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getToken } from "@/lib/authenticate";
+import ExpenseFilters from "./ExpenseFilters";
+import ExpenseTable from "./ExpenseTable";
+import ExpenseSummary from "./ExpenseSummary";
+import LoadingSpinner from "./LoadingSpinner";
 
 const ExpenseList = () => {
   const [expenses, setExpenses] = useState([]);
   const [stats, setStats] = useState(null);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const today = new Date();
-  const firstDayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
-  const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  const firstDayUTC = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1)
+  );
+  const todayUTC = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
+  );
 
   const [dateRange, setDateRange] = useState({
-    startDate: firstDayUTC.toISOString().split('T')[0],
-    endDate: todayUTC.toISOString().split('T')[0],
+    startDate: firstDayUTC.toISOString().split("T")[0],
+    endDate: todayUTC.toISOString().split("T")[0],
   });
 
-  // Pagination 
+  // Pagination
   const [currentMonth, setCurrentMonth] = useState(todayUTC.getUTCMonth());
   const [currentYear, setCurrentYear] = useState(todayUTC.getUTCFullYear());
   // Analytics
@@ -38,15 +42,24 @@ const ExpenseList = () => {
     fetchStats();
   }, [selectedCategory, dateRange]);
 
-  // 🟣 Fetch categories
+  // 🟣 Fetch user-specific categories
   const fetchCategories = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expense-categories`);
-      if (!res.ok) throw new Error('Failed to load categories');
+      const token = getToken();
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/expense-categories`,
+        {
+          headers: {
+            Authorization: `jwt ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!res.ok) throw new Error("Failed to load categories");
       const data = await res.json();
       setCategories(data);
     } catch (err) {
-      console.error('Error fetching categories:', err);
+      console.error("Error fetching categories:", err);
     }
   };
 
@@ -57,7 +70,7 @@ const ExpenseList = () => {
       let url = `${process.env.NEXT_PUBLIC_API_URL}/expenses`;
 
       // Handle category + date filters
-      if (selectedCategory !== 'all') {
+      if (selectedCategory !== "all") {
         url = `${process.env.NEXT_PUBLIC_API_URL}/expenses/category/${selectedCategory}`;
       }
       if (dateRange.startDate && dateRange.endDate) {
@@ -66,7 +79,7 @@ const ExpenseList = () => {
           endDate: dateRange.endDate,
         }).toString();
 
-        if (selectedCategory === 'all') {
+        if (selectedCategory === "all") {
           url = `${process.env.NEXT_PUBLIC_API_URL}/expenses/date-range?${params}`;
         } else {
           url = `${process.env.NEXT_PUBLIC_API_URL}/expenses/category/${selectedCategory}/date-range?${params}`;
@@ -76,11 +89,11 @@ const ExpenseList = () => {
       const res = await fetch(url, {
         headers: {
           Authorization: `jwt ${token}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
-      if (!res.ok) throw new Error('Failed to fetch expenses');
+      if (!res.ok) throw new Error("Failed to fetch expenses");
 
       const data = await res.json();
       setExpenses(data);
@@ -88,11 +101,14 @@ const ExpenseList = () => {
       // 🧠 Send data to AI service
       if (data && data.length > 0) {
         try {
-          const aiRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analyze`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ expenses: data }),
-          });
+          const aiRes = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/analyze`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ expenses: data }),
+            }
+          );
 
           if (aiRes.ok) {
             const aiData = await aiRes.json();
@@ -110,7 +126,7 @@ const ExpenseList = () => {
         setInsight(null);
       }
     } catch (error) {
-      console.error('Error fetching expenses:', error);
+      console.error("Error fetching expenses:", error);
       setInsight(null); // Also in case of error, clear insight?
     } finally {
       setLoading(false);
@@ -121,52 +137,58 @@ const ExpenseList = () => {
   const fetchStats = async () => {
     try {
       const token = getToken();
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expenses/stats`, {
-        headers: { Authorization: `jwt ${token}` },
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/expenses/stats`,
+        {
+          headers: { Authorization: `jwt ${token}` },
+        }
+      );
 
       if (res.ok) {
         const data = await res.json();
         setStats(data);
       }
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error("Error fetching stats:", error);
     }
   };
 
   // 🟣 Delete expense
   const deleteExpense = async (id) => {
-    if (!confirm('Are you sure you want to delete this expense?')) return;
+    if (!confirm("Are you sure you want to delete this expense?")) return;
     try {
       const token = getToken();
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expenses/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `jwt ${token}` },
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/expenses/${id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `jwt ${token}` },
+        }
+      );
 
       if (res.ok) {
         setExpenses(expenses.filter((e) => e._id !== id));
         fetchStats();
       }
     } catch (error) {
-      console.error('Error deleting expense:', error);
+      console.error("Error deleting expense:", error);
     }
   };
 
   // 🟣 Utility formatters
   const formatCurrency = (amount) =>
-    new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      timeZone: 'UTC' // 👈 Force UTC so it doesn’t shift with user timezone
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC", // 👈 Force UTC so it doesn’t shift with user timezone
     });
   };
 
@@ -194,8 +216,8 @@ const ExpenseList = () => {
 
     // Update date range state
     setDateRange({
-      startDate: firstDayUTC.toISOString().split('T')[0],
-      endDate: lastDayUTC.toISOString().split('T')[0],
+      startDate: firstDayUTC.toISOString().split("T")[0],
+      endDate: lastDayUTC.toISOString().split("T")[0],
     });
   };
 
@@ -204,7 +226,6 @@ const ExpenseList = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
         {/* 🌟 Hero Section */}
         <header className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl shadow-lg p-8 mb-10">
           <div className="relative z-10">
@@ -212,7 +233,8 @@ const ExpenseList = () => {
               Expense Tracker
             </h1>
             <p className="text-lg md:text-xl text-blue-100 max-w-2xl">
-              Gain control over your finances - track, analyze, and grow smarter with every expense.
+              Gain control over your finances - track, analyze, and grow smarter
+              with every expense.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-4">
@@ -267,12 +289,14 @@ const ExpenseList = () => {
           </button>
 
           <p className="text-gray-700 font-medium">
-            {new Date(Date.UTC(currentYear, currentMonth))
-              .toLocaleString('default', {
-                month: 'long',
-                year: 'numeric',
-                timeZone: 'UTC',
-              })}
+            {new Date(Date.UTC(currentYear, currentMonth)).toLocaleString(
+              "default",
+              {
+                month: "long",
+                year: "numeric",
+                timeZone: "UTC",
+              }
+            )}
           </p>
 
           <button
