@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
+import { getToken } from '@/lib/authenticate';
 
 export default function AddCategoryPage() {
   const router = useRouter();
@@ -11,30 +12,41 @@ export default function AddCategoryPage() {
   const [color, setColor] = useState("#3b82f6");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!name.trim()) return toast.error("Please enter a category name.");
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    setLoading(true);
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expense-categories`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, color }),
-      });
+  if (!name.trim()) {
+    toast.error("Please enter a category name.");
+    return;
+  }
 
-      if (res.ok) {
-        toast.success("Category added successfully!");
-        router.push("/expense/list");
-      } else {
-        toast.error("Failed to add category.");
-      }
-    } catch (error) {
-      toast.error("Something went wrong.");
-    } finally {
-      setLoading(false);
+  setLoading(true);
+  try {
+    const token = getToken();
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expense-categories`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `jwt ${token}`, // ✅ Correct prefix
+      },
+      body: JSON.stringify({ name, color }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      toast.success("✅ Category added successfully!");
+      router.push("/expense/list");
+    } else {
+      toast.error(data?.message || "Failed to add category.");
     }
-  };
+  } catch (error) {
+    console.error(error);
+    toast.error("Something went wrong. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
