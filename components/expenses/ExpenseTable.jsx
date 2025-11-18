@@ -1,6 +1,7 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, TrendingUp, Plus } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ExpenseTable({
   expenses = [],
@@ -9,26 +10,67 @@ export default function ExpenseTable({
   formatCurrency = (v) => `$${v.toFixed(2)}`,
   formatDate,
 }) {
+  // Calculate daily totals
+  const calculateDailyTotal = (expenses) => {
+    return expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  };
+
+  // Generate subtle background colors based on index
+  const getRowBackgroundColor = (index) => {
+    const colors = [
+      'from-white to-gray-50/80', // Pure white with subtle gray
+      'from-blue-50/30 to-indigo-50/20', // Very subtle blue
+      'from-emerald-50/20 to-cyan-50/10', // Very subtle green
+      'from-violet-50/15 to-purple-50/10', // Very subtle purple
+    ];
+    return colors[index % colors.length];
+  };
+
+  // Get hover gradient based on index
+  const getHoverGradient = (index) => {
+    const gradients = [
+      'hover:from-blue-50/40 hover:to-indigo-50/30', // Blue hover
+      'hover:from-emerald-50/30 hover:to-teal-50/20', // Green hover
+      'hover:from-violet-50/25 hover:to-purple-50/15', // Purple hover
+      'hover:from-amber-50/20 hover:to-orange-50/10', // Amber hover
+    ];
+    return gradients[index % gradients.length];
+  };
+
   // Case: No expenses
   if (!expenses || expenses.length === 0) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg text-center py-16 border border-gray-100">
-        <h3 className="text-2xl font-semibold text-gray-900">No expenses yet</h3>
-        <p className="mt-2 text-gray-500">
-          Track your spending by adding your first expense.
-        </p>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl text-center py-20 border border-gray-200/60"
+      >
+        <div className="max-w-md mx-auto">
+          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center">
+            <TrendingUp className="w-8 h-8 text-blue-600" />
+          </div>
+          <h3 className="text-3xl font-bold text-gray-900 mb-3">
+            No expenses yet
+          </h3>
+          <p className="text-gray-500 text-lg mb-8">
+            Start tracking your spending journey by adding your first expense.
+          </p>
 
-        <button
-          onClick={() => router.push("/expense/add")}
-          className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition-all"
-        >
-          + Add Expense
-        </button>
-      </div>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => router.push("/expense/add")}
+            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 mx-auto"
+          >
+            <Plus size={20} />
+            Add Your First Expense
+          </motion.button>
+        </div>
+      </motion.div>
     );
   }
 
-  // ⭐ Group expenses by date
+  // Group expenses by date
   const groupedExpenses = expenses.reduce((acc, expense) => {
     const dateKey = formatDate(expense.date);
     if (!acc[dateKey]) acc[dateKey] = [];
@@ -41,98 +83,205 @@ export default function ExpenseTable({
   );
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="bg-white rounded-3xl shadow-2xl border border-gray-200/60 overflow-hidden"
+    >
       <div className="overflow-x-auto">
-        {sortedDates.map((date) => (
-          <div key={date} className="border-b border-gray-100">
-            {/* Sticky subheader */}
-            <div className="backdrop-blur bg-gray-50/70 px-6 py-4 sticky top-0 z-20 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full bg-blue-500 shadow" />
-                {date}
-              </h2>
-            </div>
+        <AnimatePresence>
+          {sortedDates.map((date, dateIndex) => {
+            const dailyExpenses = groupedExpenses[date];
+            const dailyTotal = calculateDailyTotal(dailyExpenses);
+            
+            return (
+              <motion.div
+                key={date}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: dateIndex * 0.1 }}
+                className="border-b border-gray-100/80 last:border-b-0"
+              >
+                {/* Enhanced Sticky Header */}
+                <div className="backdrop-blur-lg bg-gradient-to-r from-gray-50 to-blue-50/30 px-8 py-6 sticky top-0 z-20 border-b border-gray-200/60 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 shadow-lg" />
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        {date}
+                      </h2>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+                        Daily Total
+                      </div>
+                      <div className="text-xl font-bold text-gray-900">
+                        {formatCurrency(dailyTotal)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-            <table className="min-w-full table-fixed">
-              <colgroup>
-                <col style={{ width: "25%" }} />
-                <col style={{ width: "20%" }} />
-                <col style={{ width: "35%" }} />
-                <col style={{ width: "20%" }} />
-              </colgroup>
+                {/* Enhanced Table */}
+                <div className="px-2 py-4">
+                  <table className="w-full">
+                    <colgroup>
+                      <col style={{ width: "28%" }} />
+                      <col style={{ width: "22%" }} />
+                      <col style={{ width: "35%" }} />
+                      <col style={{ width: "15%" }} />
+                    </colgroup>
 
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  {["Category", "Amount", "Note", "Actions"].map((header) => (
-                    <th
-                      key={header}
-                      className="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-500 tracking-wider"
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
+                    <thead>
+                      <tr className="border-b border-gray-200/60 bg-gradient-to-r from-gray-50/80 to-gray-100/50">
+                        {["Category", "Amount", "Note", "Actions"].map((header, index) => (
+                          <th
+                            key={header}
+                            className="px-6 py-4 text-left text-xs font-semibold uppercase text-gray-500 tracking-wider"
+                          >
+                            <div className="flex items-center gap-2">
+                              {header}
+                              {header === "Amount" && (
+                                <TrendingUp size={14} className="text-gray-400" />
+                              )}
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
 
-              <tbody className="bg-white">
-                {groupedExpenses[date].map((expense) => {
-                  const category = expense.category || {};
-                  const categoryName = category.name || "Uncategorized";
-                  const categoryColor = category.color || "#9ca3af";
+                    <tbody>
+                      <AnimatePresence>
+                        {dailyExpenses.map((expense, expenseIndex) => {
+                          const category = expense.category || {};
+                          const categoryName = category.name || "Uncategorized";
+                          const categoryColor = category.color || "#9ca3af";
+                          const rowBgColor = getRowBackgroundColor(expenseIndex);
+                          const hoverGradient = getHoverGradient(expenseIndex);
 
-                  return (
-                    <tr
-                      key={expense._id}
-                      className="group hover:bg-gray-50 transition-all border-b border-gray-100"
-                    >
-                      {/* Category */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium text-white shadow-sm transition-transform group-hover:scale-[1.03]"
-                          style={{ backgroundColor: categoryColor }}
-                        >
-                          {categoryName}
-                        </span>
-                      </td>
+                          return (
+                            <motion.tr
+                              key={expense._id}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: (dateIndex * 0.1) + (expenseIndex * 0.05) }}
+                              className={`group bg-gradient-to-r ${rowBgColor} ${hoverGradient} transition-all duration-300 border-b border-gray-100/30 last:border-b-0`}
+                            >
+                              {/* Category */}
+                              <td className="px-6 py-5">
+                                <motion.span
+                                  whileHover={{ scale: 1.05 }}
+                                  className="inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-semibold text-white shadow-lg transition-all duration-200 group-hover:shadow-xl"
+                                  style={{ 
+                                    backgroundColor: categoryColor,
+                                    background: `linear-gradient(135deg, ${categoryColor} 0%, ${categoryColor}dd 100%)`
+                                  }}
+                                >
+                                  <div 
+                                    className="w-2 h-2 rounded-full bg-white/30"
+                                  />
+                                  {categoryName}
+                                </motion.span>
+                              </td>
 
-                      {/* Amount */}
-                      <td className="px-6 py-4 text-sm font-semibold text-gray-800">
-                        {formatCurrency(expense.amount)}
-                      </td>
+                              {/* Amount */}
+                              <td className="px-6 py-5">
+                                <div className="flex flex-col">
+                                  <span className="text-lg font-bold text-gray-900 group-hover:text-gray-800 transition-colors">
+                                    {formatCurrency(expense.amount)}
+                                  </span>
+                                  {expense.note && (
+                                    <span className="text-xs text-gray-400 mt-1 group-hover:text-gray-500 transition-colors">
+                                      {new Date(expense.date).toLocaleTimeString([], { 
+                                        hour: '2-digit', 
+                                        minute: '2-digit' 
+                                      })}
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
 
-                      {/* Note */}
-                      <td className="px-6 py-4 text-sm text-gray-600 truncate max-w-xs">
-                        {expense.note || "—"}
-                      </td>
+                              {/* Note */}
+                              <td className="px-6 py-5">
+                                <div className="max-w-xs">
+                                  {expense.note ? (
+                                    <motion.p 
+                                      className="text-gray-700 text-sm leading-relaxed line-clamp-2 group-hover:text-gray-900 transition-colors"
+                                      whileHover={{ scale: 1.02 }}
+                                    >
+                                      {expense.note}
+                                    </motion.p>
+                                  ) : (
+                                    <span className="text-gray-400 text-sm italic group-hover:text-gray-500 transition-colors">
+                                      — No note —
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
 
-                      {/* Actions */}
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-4">
-                        <button
-                          onClick={() =>
-                            router.push(`/expense/edit/${expense._id}`)
-                          }
-                          className="text-blue-600 hover:text-blue-800 hover:scale-110 transition-all flex items-center gap-1"
-                        >
-                          <Pencil size={16} />
-                          <span className="hidden md:inline">Edit</span>
-                        </button>
+                              {/* Enhanced Actions */}
+                              <td className="px-6 py-5">
+                                <div className="flex items-center gap-3">
+                                  <motion.button
+                                    whileHover={{ scale: 1.1, y: -1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => router.push(`/expense/edit/${expense._id}`)}
+                                    className="p-2.5 bg-white text-blue-600 rounded-xl border border-blue-200/60 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm hover:shadow-md group/btn"
+                                  >
+                                    <Pencil size={18} />
+                                    <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover/btn:opacity-100 transition-opacity whitespace-nowrap">
+                                      Edit
+                                    </span>
+                                  </motion.button>
 
-                        <button
-                          onClick={() => deleteExpense(expense._id)}
-                          className="text-red-600 hover:text-red-800 hover:scale-110 transition-all flex items-center gap-1"
-                        >
-                          <Trash2 size={16} />
-                          <span className="hidden md:inline">Delete</span>
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        ))}
+                                  <motion.button
+                                    whileHover={{ scale: 1.1, y: -1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => deleteExpense(expense._id)}
+                                    className="p-2.5 bg-white text-red-600 rounded-xl border border-red-200/60 hover:bg-red-50 hover:border-red-300 hover:text-red-700 transition-all duration-200 shadow-sm hover:shadow-md group/btn"
+                                  >
+                                    <Trash2 size={18} />
+                                    <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover/btn:opacity-100 transition-opacity whitespace-nowrap">
+                                      Delete
+                                    </span>
+                                  </motion.button>
+                                </div>
+                              </td>
+                            </motion.tr>
+                          );
+                        })}
+                      </AnimatePresence>
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
-    </div>
+
+      {/* Summary Footer */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="bg-gradient-to-r from-gray-50 to-blue-50/30 px-8 py-6 border-t border-gray-200/60"
+      >
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Total <span className="font-semibold">{expenses.length}</span> expenses across <span className="font-semibold">{sortedDates.length}</span> days
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => router.push("/expense/add")}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+          >
+            <Plus size={18} />
+            Add Expense
+          </motion.button>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
