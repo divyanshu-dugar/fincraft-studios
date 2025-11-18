@@ -97,37 +97,8 @@ const ExpenseList = () => {
 
       const data = await res.json();
       setExpenses(data);
-
-      // 🧠 Send data to AI service
-      if (data && data.length > 0) {
-        try {
-          const aiRes = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/analyze`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ expenses: data }),
-            }
-          );
-
-          if (aiRes.ok) {
-            const aiData = await aiRes.json();
-            setInsight(aiData.insight);
-          } else {
-            // console.error("AI service error:", aiRes.statusText);
-            setInsight(null); // If AI service fails, clear insight?
-          }
-        } catch (err) {
-          console.error("Error connecting to AI service:", err);
-          setInsight(null);
-        }
-      } else {
-        // If there are no expenses, clear the insight
-        setInsight(null);
-      }
     } catch (error) {
       console.error("Error fetching expenses:", error);
-      setInsight(null); // Also in case of error, clear insight?
     } finally {
       setLoading(false);
     }
