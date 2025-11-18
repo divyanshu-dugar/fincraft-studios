@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Plus } from "lucide-react";
 import { getToken } from "@/lib/authenticate";
 import ExpenseFilters from "./ExpenseFilters";
 import ExpenseTable from "./ExpenseTable";
@@ -30,8 +32,6 @@ const ExpenseList = () => {
   // Pagination
   const [currentMonth, setCurrentMonth] = useState(todayUTC.getUTCMonth());
   const [currentYear, setCurrentYear] = useState(todayUTC.getUTCFullYear());
-  // Analytics
-  const [insight, setInsight] = useState(null);
 
   const router = useRouter();
 
@@ -159,7 +159,7 @@ const ExpenseList = () => {
       year: "numeric",
       month: "short",
       day: "numeric",
-      timeZone: "UTC", // 👈 Force UTC so it doesn’t shift with user timezone
+      timeZone: "UTC", // 👈 Force UTC so it doesn't shift with user timezone
     });
   };
 
@@ -195,41 +195,50 @@ const ExpenseList = () => {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* 🌟 Hero Section */}
-        <header className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl shadow-lg p-8 mb-10">
+        {/* 🌟 Enhanced Hero Section */}
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 rounded-3xl shadow-2xl p-8 mb-10"
+        >
           <div className="relative z-10">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg mb-3">
+            <h1 className="text-4xl md:text-6xl font-black text-white drop-shadow-2xl mb-4">
               Expense Tracker
             </h1>
-            <p className="text-lg md:text-xl text-blue-100 max-w-2xl">
-              Gain control over your finances - track, analyze, and grow smarter
-              with every expense.
+            <p className="text-xl md:text-2xl text-blue-100/90 max-w-2xl mb-8 leading-relaxed">
+              Take control of your financial journey. Track, analyze, and optimize your spending with intelligent insights.
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-4">
-              <button
+            <div className="flex flex-wrap gap-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => router.push("/expense/add")}
-                className="px-6 py-3 bg-white text-blue-700 font-semibold rounded-xl shadow-md hover:bg-blue-50 transition-all"
+                className="px-8 py-4 bg-white text-blue-700 font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-200 hover:bg-blue-50 flex items-center gap-2"
               >
-                + Add Expense
-              </button>
-              <button
+                <Plus size={20} />
+                Add New Expense
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => router.push("/reports")}
-                className="px-6 py-3 border border-white text-white rounded-xl hover:bg-white/10 transition-all"
+                className="px-8 py-4 border-2 border-white/80 text-white font-semibold rounded-2xl hover:bg-white/10 backdrop-blur-sm transition-all duration-200"
               >
-                View Reports
-              </button>
+                📊 View Analytics
+              </motion.button>
             </div>
           </div>
 
-          {/* Decorative gradients / shapes */}
+          {/* Enhanced decorative elements */}
           <div className="absolute inset-0">
-            <div className="absolute top-0 left-0 w-72 h-72 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute bottom-0 right-0 w-72 h-72 bg-purple-400/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+            <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+            <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-400/15 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2"></div>
           </div>
-        </header>
+        </motion.header>
 
         {/* Filters */}
         <ExpenseFilters
@@ -241,7 +250,7 @@ const ExpenseList = () => {
           router={router}
         />
 
-        {/* Table */}
+        {/* Enhanced Table with proper props */}
         <ExpenseTable
           expenses={expenses}
           router={router}
@@ -250,37 +259,51 @@ const ExpenseList = () => {
           formatDate={formatDate}
         />
 
-        {/* Pagination Controls */}
-        <div className="flex justify-between items-center mt-6">
-          <button
+        {/* Enhanced Pagination Controls */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="flex justify-between items-center mt-8 p-6 bg-white rounded-2xl shadow-lg border border-gray-200/60"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05, x: -2 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => changeMonth(-1)}
-            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 cursor-pointer"
+            className="px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 cursor-pointer"
           >
             ← Previous Month
-          </button>
+          </motion.button>
 
-          <p className="text-gray-700 font-medium">
-            {new Date(Date.UTC(currentYear, currentMonth)).toLocaleString(
-              "default",
-              {
-                month: "long",
-                year: "numeric",
-                timeZone: "UTC",
-              }
-            )}
-          </p>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-gray-900">
+              {new Date(Date.UTC(currentYear, currentMonth)).toLocaleString(
+                "default",
+                {
+                  month: "long",
+                  year: "numeric",
+                  timeZone: "UTC",
+                }
+              )}
+            </p>
+            <p className="text-sm text-gray-500 mt-1">
+              {expenses.length} expenses this period
+            </p>
+          </div>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05, x: 2 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => changeMonth(1)}
             disabled={
               currentYear === todayUTC.getUTCFullYear() &&
               currentMonth === todayUTC.getUTCMonth()
             }
-            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50 cursor-pointer"
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
           >
             Next Month →
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
         {/* Summary */}
         {expenses.length > 0 && (
