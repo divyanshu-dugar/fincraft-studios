@@ -1,4 +1,6 @@
-'use client';
+"use client";
+
+import { Pencil, Trash2 } from "lucide-react";
 
 export default function ExpenseTable({
   expenses = [],
@@ -7,23 +9,26 @@ export default function ExpenseTable({
   formatCurrency = (v) => `$${v.toFixed(2)}`,
   formatDate,
 }) {
-  // 🟡 Case: No expenses
+  // Case: No expenses
   if (!expenses || expenses.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow text-center py-12">
-        <h3 className="mt-4 text-lg font-medium text-gray-900">No expenses found</h3>
-        <p className="mt-2 text-gray-500">Get started by adding your first expense.</p>
+      <div className="bg-white rounded-2xl shadow-lg text-center py-16 border border-gray-100">
+        <h3 className="text-2xl font-semibold text-gray-900">No expenses yet</h3>
+        <p className="mt-2 text-gray-500">
+          Track your spending by adding your first expense.
+        </p>
+
         <button
-          onClick={() => router.push('/expense/add')}
-          className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          onClick={() => router.push("/expense/add")}
+          className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition-all"
         >
-          Add Expense
+          + Add Expense
         </button>
       </div>
     );
   }
 
-  // 🟣 Group expenses by formatted date
+  // ⭐ Group expenses by date
   const groupedExpenses = expenses.reduce((acc, expense) => {
     const dateKey = formatDate(expense.date);
     if (!acc[dateKey]) acc[dateKey] = [];
@@ -31,36 +36,37 @@ export default function ExpenseTable({
     return acc;
   }, {});
 
-  // Sort dates descending (newest first)
   const sortedDates = Object.keys(groupedExpenses).sort(
     (a, b) => new Date(b) - new Date(a)
   );
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
       <div className="overflow-x-auto">
         {sortedDates.map((date) => (
-          <div key={date} className="border-b border-gray-200">
-            {/* Sticky Date Subheader */}
-            <div className="bg-gray-100 px-6 py-3 sticky top-0 z-10">
-              <h2 className="text-lg font-semibold text-gray-800">{date}</h2>
+          <div key={date} className="border-b border-gray-100">
+            {/* Sticky subheader */}
+            <div className="backdrop-blur bg-gray-50/70 px-6 py-4 sticky top-0 z-20 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <span className="h-3 w-3 rounded-full bg-blue-500 shadow" />
+                {date}
+              </h2>
             </div>
 
-            {/* Table for that date */}
-            <table
-              className="min-w-full table-fixed divide-y divide-gray-200"
-              style={{ tableLayout: 'fixed' }}
-            >
+            <table className="min-w-full table-fixed">
               <colgroup>
-                <col style={{ width: '25%' }} /><col style={{ width: '15%' }} /><col style={{ width: '40%' }} /><col style={{ width: '20%' }} />
+                <col style={{ width: "25%" }} />
+                <col style={{ width: "20%" }} />
+                <col style={{ width: "35%" }} />
+                <col style={{ width: "20%" }} />
               </colgroup>
 
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {['Category', 'Amount', 'Note', 'Actions'].map((header) => (
+                  {["Category", "Amount", "Note", "Actions"].map((header) => (
                     <th
                       key={header}
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-semibold uppercase text-gray-500 tracking-wider"
                     >
                       {header}
                     </th>
@@ -68,43 +74,55 @@ export default function ExpenseTable({
                 </tr>
               </thead>
 
-              <tbody className="bg-white divide-y divide-gray-100">
+              <tbody className="bg-white">
                 {groupedExpenses[date].map((expense) => {
                   const category = expense.category || {};
-                  const categoryName = category.name || 'Uncategorized';
-                  const categoryColor = category.color || '#9ca3af';
+                  const categoryName = category.name || "Uncategorized";
+                  const categoryColor = category.color || "#9ca3af";
 
                   return (
-                    <tr key={expense._id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={expense._id}
+                      className="group hover:bg-gray-50 transition-all border-b border-gray-100"
+                    >
+                      {/* Category */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
+                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium text-white shadow-sm transition-transform group-hover:scale-[1.03]"
                           style={{ backgroundColor: categoryColor }}
                         >
                           {categoryName}
                         </span>
                       </td>
 
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                      {/* Amount */}
+                      <td className="px-6 py-4 text-sm font-semibold text-gray-800">
                         {formatCurrency(expense.amount)}
                       </td>
 
-                      <td className="px-6 py-4 text-sm text-gray-500 truncate">
-                        {expense.note || '—'}
+                      {/* Note */}
+                      <td className="px-6 py-4 text-sm text-gray-600 truncate max-w-xs">
+                        {expense.note || "—"}
                       </td>
 
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+                      {/* Actions */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-4">
                         <button
-                          onClick={() => router.push(`/expense/edit/${expense._id}`)}
-                          className="text-blue-600 hover:text-blue-900"
+                          onClick={() =>
+                            router.push(`/expense/edit/${expense._id}`)
+                          }
+                          className="text-blue-600 hover:text-blue-800 hover:scale-110 transition-all flex items-center gap-1"
                         >
-                          Edit
+                          <Pencil size={16} />
+                          <span className="hidden md:inline">Edit</span>
                         </button>
+
                         <button
                           onClick={() => deleteExpense(expense._id)}
-                          className="text-red-600 hover:text-red-900"
+                          className="text-red-600 hover:text-red-800 hover:scale-110 transition-all flex items-center gap-1"
                         >
-                          Delete
+                          <Trash2 size={16} />
+                          <span className="hidden md:inline">Delete</span>
                         </button>
                       </td>
                     </tr>
