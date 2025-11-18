@@ -20,16 +20,31 @@ const AddExpense = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expense-categories`);
+        const token = getToken();
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expense-categories`, {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `jwt ${token}`
+          }
+        });
+
         if (!res.ok) throw new Error("Failed to load categories");
+
         const data = await res.json();
         setCategories(data);
       } catch (err) {
         console.error("Error fetching categories:", err);
       }
     };
+
     fetchCategories();
   }, []);
+
 
 
   const handleChange = (e) => {
